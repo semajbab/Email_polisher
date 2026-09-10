@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Email Polisher options</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 24px;
+        max-width: 460px;
+      }
+      h1 { font-size: 17px; margin: 0 0 4px; }
+      p.sub { margin: 0 0 20px; opacity: .7; }
+      label { display: block; font-weight: 600; margin-bottom: 6px; }
+      input, select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 9px;
+        font: inherit;
+        border: 1px solid rgba(128, 128, 128, .5);
+        border-radius: 5px;
+        background: transparent;
+        color: inherit;
+      }
+      .field { margin-bottom: 18px; }
+      .row { display: flex; gap: 8px; align-items: center; }
+      .row input { flex: 1; }
+      button {
+        font: inherit;
+        padding: 7px 14px;
+        border: 1px solid rgba(128, 128, 128, .5);
+        border-radius: 5px;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+      }
+      button.primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+      .hint { margin-top: 6px; opacity: .7; font-size: 12.5px; }
+      #status { margin-left: 10px; font-size: 13px; }
+      #status.error { color: #c0392b; }
+    </style>
+  </head>
+  <body>
+    <h1>Email Polisher</h1>
+    <p class="sub">
+      Highlight text in any editable field, then press <b>Ctrl+Shift+E</b>
+      (<b>Cmd+Shift+E</b> on macOS) to rewrite it in place.
+    </p>
+
+    <div class="field">
+      <label for="apiKey">Anthropic API key</label>
+      <div class="row">
+        <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+        <button id="toggle" type="button">Show</button>
+      </div>
+      <div class="hint">Stored in <code>chrome.storage.local</code>. It stays on this device and is never synced.</div>
+    </div>
+
+    <div class="field">
+      <label for="model">Model</label>
+      <select id="model">
+        <option value="claude-sonnet-5">Claude Sonnet 5 (default)</option>
+        <option value="claude-haiku-4-5">Claude Haiku 4.5 (fastest)</option>
+        <option value="claude-opus-5">Claude Opus 5 (most capable)</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <button id="save" class="primary" type="button">Save</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+
+    <p class="hint">
+      Change the shortcut at <code>chrome://extensions/shortcuts</code> if it clashes with something else.
+    </p>
+
+    <script src="options.js"></script>
+  </body>
+</html>

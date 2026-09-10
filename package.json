@@ -1,0 +1,12 @@
+{
+  "name": "email-polisher",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that rewrites highlighted text in place with the Claude API.",
+  "scripts": {
+    "test": "node test/selection.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

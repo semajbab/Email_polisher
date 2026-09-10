@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<body>
+<textarea id="ta" rows="4" cols="50">Hi Bob, I wanted to reach out to you in order to ask about the report.</textarea>
+<div id="ce" contenteditable="true">Hi Carol, just following up on the invoice from March 3rd.</div>
+<input id="in" type="text" size="60" value="Please kindly action this at your earliest convenience.">
+<div id="plain">Not editable text here.</div>
+<script>
+// Minimal stub of the extension APIs the content script uses.
+window.__sent = [];
+window.__reply = { ok: true, text: "REWRITTEN" };
+window.chrome = {
+  runtime: {
+    onMessage: {
+      _fns: [],
+      addListener(fn) { this._fns.push(fn); }
+    },
+    sendMessage(msg) {
+      window.__sent.push(msg);
+      return new Promise((r) => setTimeout(() => r(window.__reply), 10));
+    }
+  }
+};
+window.__fire = () => chrome.runtime.onMessage._fns.forEach((f) => f({ type: "REFINE_SELECTION" }, {}, () => {}));
+</script>
+<script src="../content.js"></script>
