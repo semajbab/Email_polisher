@@ -131,7 +131,59 @@ check(
 );
 check("drift shows a toast", (await toastText()).includes("Selection changed"), await toastText());
 
-// 8. API error surfaces in the toast, page untouched
+// 8. multi-block selection: the shape a real compose box has. selection.toString()
+//    separates blocks with newlines, range.toString() does not, so a naive
+//    comparison reads every such selection as drift.
+await page.evaluate(() => {
+  window.__reply = { ok: true, text: "Hi Bob, thanks for the report. Best, James" };
+  document.getElementById("ce").innerHTML =
+    "<div>Hi Bob,</div><div>Thanks for sending the report over.</div><div>Best, James</div>";
+  const ce = document.getElementById("ce");
+  ce.focus();
+  const range = document.createRange();
+  range.selectNodeContents(ce);
+  const sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  window.__fire();
+});
+await page.waitForTimeout(200);
+check(
+  "multi-block selection is replaced, not rejected as drift",
+  (await page.textContent("#ce")).includes("thanks for the report"),
+  await page.textContent("#ce")
+);
+check("multi-block selection reports success", (await toastText()) === "Rewritten.", await toastText());
+
+// 9. the editor re-renders mid-flight, detaching the saved range, but the
+//    selection still covers the same text
+await page.evaluate(async () => {
+  window.__reply = { ok: true, text: "RERENDERED-OK" };
+  document.getElementById("ce").innerHTML = "<div>Alpha</div><div>Beta</div>";
+  const ce = document.getElementById("ce");
+  ce.focus();
+  const range = document.createRange();
+  range.selectNodeContents(ce);
+  const sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  window.__fire();
+  await new Promise((r) => setTimeout(r, 2));
+  // Same text, brand new nodes: what an autosave repaint does.
+  ce.innerHTML = "<div>Alpha</div><div>Beta</div>";
+  const fresh = document.createRange();
+  fresh.selectNodeContents(ce);
+  sel.removeAllRanges();
+  sel.addRange(fresh);
+});
+await page.waitForTimeout(200);
+check(
+  "survives a mid-flight re-render of the same text",
+  (await page.textContent("#ce")).includes("RERENDERED-OK"),
+  await page.textContent("#ce")
+);
+
+// 10. API error surfaces in the toast, page untouched
 await page.evaluate(() => {
   window.__reply = { ok: false, error: "Claude API error 401: invalid x-api-key" };
   const ta = document.getElementById("ta");

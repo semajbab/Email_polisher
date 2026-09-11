@@ -43,7 +43,7 @@
         return;
       }
 
-      if (hasDrifted(target)) {
+      if (!stillValid(target)) {
         done("Selection changed, so nothing was replaced.");
         return;
       }
@@ -98,15 +98,39 @@
 
   // The API call takes a moment; make sure the user hasn't typed over the
   // selection in the meantime before overwriting anything.
-  function hasDrifted(target) {
+  function stillValid(target) {
+    if (target.kind === "field") {
+      return target.element.value.slice(target.start, target.end) === target.text;
+    }
+
     try {
-      if (target.kind === "field") {
-        return target.element.value.slice(target.start, target.end) !== target.text;
-      }
-      return target.range.toString() !== target.text;
+      if (squash(target.range.toString()) === squash(target.text)) return true;
     } catch {
+      // fall through to the live selection below
+    }
+
+    // A compose box may re-render while the request is in flight (autosave,
+    // spellcheck, a framework repaint), which detaches the saved range. If the
+    // live selection still covers the same text, carry on with that one.
+    const selection = window.getSelection();
+    if (
+      selection &&
+      selection.rangeCount > 0 &&
+      squash(selection.toString()) === squash(target.text)
+    ) {
+      target.range = selection.getRangeAt(0).cloneRange();
       return true;
     }
+
+    return false;
+  }
+
+  // Whitespace is represented differently depending on where the text came
+  // from: selection.toString() puts a newline between block elements, while
+  // range.toString() runs them together. Compare with whitespace stripped, so a
+  // multi-paragraph selection doesn't read as an edit that never happened.
+  function squash(text) {
+    return text.replace(/\s+/g, "");
   }
 
   // --- replacement ---------------------------------------------------------
