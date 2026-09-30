@@ -89,9 +89,24 @@ Set `PLAYWRIGHT_CHROMIUM_PATH` to point at a Chromium that Playwright did not in
 
 ## The rewrite prompt
 
-Fixed, in `background.js`: no em dashes, Orwell's six rules, preserve every primary detail
-(names, dates, numbers, the ask, the next step), match the original's tone and length,
-return only the rewritten text.
+Fixed, in `background.js`, and run as two passes in one call.
+
+**Pass 1 strips AI writing tells,** condensed from the `humanize-writing` skill and ordered
+strongest first: not-X-but-Y contrasts, one-line closers and dramatic fragments, sayings
+that sound deep, staged run-ups, arguing with objections nobody raised, chatbot residue,
+forced triads, inflated significance and sales language, shallow -ing riders, vague
+connection, verbs that avoid *is/are/has*, repeated sentence openings, stacked qualifiers,
+decoration, and background re-explained to a reader who already has it.
+
+**Pass 2 tightens with Orwell's six rules:** no stale figures of speech, short words over
+long, cut any word that can go, active over passive, plain English over jargon, and break
+those rules before writing anything barbarous.
+
+**Hard constraints override both:** no em dashes or en dashes anywhere; keep every primary
+fact (recipient, the ask, dates, numbers, names, commitments, next step) and invent none;
+match the original's tone and never exceed its length; keep the details that carry the
+writer's voice; leave an already-clean passage nearly alone; return only the rewritten
+text.
 
 ## Privacy
 
