@@ -2,7 +2,7 @@
 // The content script never sees the key; it only ships text over and gets text back.
 
 const API_URL = "https://api.anthropic.com/v1/messages";
-const DEFAULT_MODEL = "claude-haiku-4-5";
+const DEFAULT_MODEL = "claude-sonnet-5";
 
 // output_config.effort is not accepted on every model: Haiku 4.5 rejects it with
 // a 400. Keep this list explicit so adding a model to the options page is a
