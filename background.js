@@ -2,7 +2,12 @@
 // The content script never sees the key; it only ships text over and gets text back.
 
 const API_URL = "https://api.anthropic.com/v1/messages";
-const DEFAULT_MODEL = "claude-sonnet-5";
+const DEFAULT_MODEL = "claude-haiku-4-5";
+
+// output_config.effort is not accepted on every model: Haiku 4.5 rejects it with
+// a 400. Keep this list explicit so adding a model to the options page is a
+// deliberate decision rather than a silent request failure.
+const EFFORT_MODELS = new Set(["claude-opus-5", "claude-sonnet-5"]);
 const MAX_INPUT_CHARS = 20000;
 const REQUEST_TIMEOUT_MS = 45000;
 
@@ -115,14 +120,7 @@ async function refine(text) {
         // Required for calls made from a browser context, including an extension worker.
         "anthropic-dangerous-direct-browser-access": "true"
       },
-      body: JSON.stringify({
-        model: model || DEFAULT_MODEL,
-        max_tokens: 16000,
-        // Low effort keeps the round trip short; a rewrite needs little deliberation.
-        output_config: { effort: "low" },
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: text }]
-      })
+      body: JSON.stringify(requestBody(model || DEFAULT_MODEL, text))
     });
   } catch (err) {
     if (err.name === "AbortError") throw new Error("Claude took too long to respond.");
@@ -155,6 +153,22 @@ async function refine(text) {
   }
 
   return rewritten;
+}
+
+function requestBody(model, text) {
+  const body = {
+    model,
+    max_tokens: 16000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: "user", content: text }]
+  };
+
+  // Low effort keeps the round trip short; a rewrite needs little deliberation.
+  if (EFFORT_MODELS.has(model)) {
+    body.output_config = { effort: "low" };
+  }
+
+  return body;
 }
 
 async function errorDetail(response) {

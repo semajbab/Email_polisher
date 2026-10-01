@@ -68,7 +68,9 @@ the selection as the user message. Requests run at `effort: "low"` to keep the r
 short, and time out after 45 seconds. Every `text` block in the response is joined rather
 than reading `content[0]`, since adaptive thinking can put a thinking block first.
 
-Default model is `claude-sonnet-5`; Haiku 4.5 and Opus 5 are selectable in options.
+Default model is `claude-haiku-4-5`; Sonnet 5 and Opus 5 are selectable in options.
+`output_config.effort` is sent only for the models that accept it, since Haiku 4.5 rejects
+it with a 400.
 
 ## Tests
 
